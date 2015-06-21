@@ -11,8 +11,7 @@ A library to install/uninstall NDIS driver on Windows.
 ### Build
 
 I build it with WDK7600.16385.1 xp fre/chk environment.  
-Provide static and dynamic library build.  
-build static library by default.  
+Provide static(default) and dynamic library build.  
 If you want to build dynamic library(dll), rename file "sources_dynamic" to "sources", then build.  
 They all have debug and release version. Debug version has a _d flag in the library name.  
 I have changed TARGETPATH to "Lib", so you'll get your library in "Lib" folder.  
