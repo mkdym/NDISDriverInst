@@ -1,0 +1,7 @@
+LIBRARY NDISDriverInst
+
+EXPORTS
+    IsNDISDriverInstalled   @1
+    InstallNDISDriver       @2
+    UninstallNDISDriver     @3
+
