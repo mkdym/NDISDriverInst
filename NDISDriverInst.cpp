@@ -82,11 +82,11 @@ void FreeComponentInfo(NDISDriverInfo& info)
     }
 }
 
-BOOL EnumNDISDrivers(InfoNode *pInfoListHeader, HRESULT *pHR)
+HRESULT EnumNDISDrivers(InfoNode *pInfoListHeader)
 {
     if (NULL == pInfoListHeader)
     {
-        return FALSE;
+        return S_FALSE;
     }
     InfoNode *pCurNode = pInfoListHeader;
 
@@ -132,11 +132,7 @@ BOOL EnumNDISDrivers(InfoNode *pInfoListHeader, HRESULT *pHR)
         }
     }
 
-    if (pHR)
-    {
-        *pHR = hr;
-    }
-    return S_OK == hr;
+    return hr;
 }
 
 void FreeEnumInfos(InfoNode *pInfoListHeader)
@@ -158,45 +154,51 @@ void FreeEnumInfos(InfoNode *pInfoListHeader)
     memset(pInfoListHeader, 0, sizeof(InfoNode));
 }
 
-NDIS_DRIVER_INST_API int __stdcall IsNDISDriverInstalled(const wchar_t *szComponentId, long *pResult)
+
+
+NDIS_DRIVER_INST_API NDIS_INST_STATE __stdcall IsNDISDriverInstalled(const wchar_t *szComponentId, HRESULT *pResult)
 {
-    BOOL bReturn = FALSE;
+    NDIS_INST_STATE inst_state = NDIS_NOT_INSTALLED;
 
     InfoNode InfoHeader = {0};
-    if (EnumNDISDrivers(&InfoHeader, pResult))
+    HRESULT hr = EnumNDISDrivers(&InfoHeader);
+    if (S_OK == hr)
     {
         InfoNode *pCurInfo = InfoHeader.pNext;
         while (pCurInfo)
         {
             if (0 == lstrcmpiW(szComponentId, pCurInfo->info.lpszId))
             {
-                bReturn = TRUE;
+                inst_state = NDIS_INSTALLED;
                 break;
             }
             pCurInfo = pCurInfo->pNext;
         }
     }
+    else
+    {
+        inst_state = NDIS_QUERY_ERROR;
+        if (pResult)
+        {
+            *pResult = hr;
+        }
+    }
     FreeEnumInfos(&InfoHeader);
 
-    return bReturn;
+    return inst_state;
 }
 
-NDIS_DRIVER_INST_API int __stdcall InstallNDISDriver(const wchar_t *szInfFile, int *pNeedReboot, long *pResult)
+NDIS_DRIVER_INST_API HRESULT __stdcall InstallNDISDriver(const wchar_t *szInfFile, int *pNeedReboot)
 {
-    BOOL bReturn = FALSE;
-
     WCHAR *szPnpID = NULL;
     HRESULT hr = GetPnpID(szInfFile, &szPnpID);
     if (S_OK == hr)
     {
         hr = InstallSpecifiedComponent(szInfFile, szPnpID, &GUID_DEVCLASS_NETSERVICE);
         CoTaskMemFree(szPnpID);
-
-        BOOL bReturn = FALSE;
         switch (hr)
         {
         case S_OK:
-            bReturn = TRUE;
             if (pNeedReboot)
             {
                 *pNeedReboot = FALSE;
@@ -204,10 +206,10 @@ NDIS_DRIVER_INST_API int __stdcall InstallNDISDriver(const wchar_t *szInfFile, i
             break;
 
         case NETCFG_S_REBOOT:
-            bReturn = TRUE;
+            hr = S_OK;
             if (pNeedReboot)
             {
-                *pNeedReboot = TRUE;;
+                *pNeedReboot = TRUE;
             }
             break;
 
@@ -216,22 +218,15 @@ NDIS_DRIVER_INST_API int __stdcall InstallNDISDriver(const wchar_t *szInfFile, i
         }
     }
 
-    if (pResult)
-    {
-        *pResult = hr;
-    }
-    return bReturn;
+    return hr;
 }
 
-NDIS_DRIVER_INST_API int __stdcall UninstallNDISDriver(const wchar_t *szComponentId, int *pNeedReboot, long *pResult)
+NDIS_DRIVER_INST_API HRESULT __stdcall UninstallNDISDriver(const wchar_t *szComponentId, int *pNeedReboot)
 {
     HRESULT hr = UninstallComponent(szComponentId);
-
-    BOOL bReturn = FALSE;
     switch (hr)
     {
     case S_OK:
-        bReturn = TRUE;
         if (pNeedReboot)
         {
             *pNeedReboot = FALSE;
@@ -239,10 +234,10 @@ NDIS_DRIVER_INST_API int __stdcall UninstallNDISDriver(const wchar_t *szComponen
         break;
 
     case NETCFG_S_REBOOT:
-        bReturn = TRUE;
+        hr = S_OK;
         if (pNeedReboot)
         {
-            *pNeedReboot = TRUE;;
+            *pNeedReboot = TRUE;
         }
         break;
 
@@ -250,10 +245,6 @@ NDIS_DRIVER_INST_API int __stdcall UninstallNDISDriver(const wchar_t *szComponen
         break;
     }
 
-    if (pResult)
-    {
-        *pResult = hr;
-    }
-    return bReturn;
+    return hr;
 }
 

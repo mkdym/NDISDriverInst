@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NDISDriverInst", "NDISDriverInst.vcproj", "{82F69364-DE30-4C07-8038-03B9205829DE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test.vcproj", "{FEEC59FF-2483-4D9D-8B16-9B09CFEF2E4C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{82F69364-DE30-4C07-8038-03B9205829DE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{82F69364-DE30-4C07-8038-03B9205829DE}.Debug|Win32.Build.0 = Debug|Win32
+		{82F69364-DE30-4C07-8038-03B9205829DE}.Release|Win32.ActiveCfg = Release|Win32
+		{82F69364-DE30-4C07-8038-03B9205829DE}.Release|Win32.Build.0 = Release|Win32
+		{FEEC59FF-2483-4D9D-8B16-9B09CFEF2E4C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FEEC59FF-2483-4D9D-8B16-9B09CFEF2E4C}.Debug|Win32.Build.0 = Debug|Win32
+		{FEEC59FF-2483-4D9D-8B16-9B09CFEF2E4C}.Release|Win32.ActiveCfg = Release|Win32
+		{FEEC59FF-2483-4D9D-8B16-9B09CFEF2E4C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

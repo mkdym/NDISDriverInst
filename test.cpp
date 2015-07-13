@@ -4,66 +4,73 @@
 #include "NDISDriverInst.h"
 
 
-#if !defined(S_OK)
-#define S_OK (0L)
-#endif
-
 
 using namespace std;
 
 
+
+void print_error(const HRESULT& hr)
+{
+    _com_error e(hr);
+#if defined(UNICODE) || defined(_UNICODE)
+    wcout << e.ErrorMessage() << endl;
+#else
+    cout << e.ErrorMessage() << endl;
+#endif
+}
+
+
+
 int main()
 {
-    long error_code = 0;
+    setlocale(LC_ALL,"chs");
+
+    HRESULT error_code = S_OK;
     int needreboot = 0;
-    int query_installed = IsNDISDriverInstalled(L"ms_passthru", &error_code);
-    if (!query_installed)
+    NDIS_INST_STATE state = IsNDISDriverInstalled(L"ms_passthru", &error_code);
+    switch (state)
     {
-        if (S_OK != error_code)
+    case NDIS_INSTALLED:
         {
-            _com_error e(error_code);
-            std::wstring error_msg = e.ErrorMessage();
+            cout << "have installed, uninstall it" <<endl;
+
+            error_code = UninstallNDISDriver(L"ms_passthru", &needreboot);
+            if (S_OK != error_code)
+            {
+                cout << "uninstall fail" << endl;
+                print_error(error_code);
+            }
+            else
+            {
+                cout << "uninstall success" << endl;
+            }
         }
-        else
+        break;
+
+    case NDIS_NOT_INSTALLED:
         {
             cout << "not installed, install it" <<endl;
 
-            error_code = 0;
-            int install_ok = InstallNDISDriver(L"C:\\netsf.inf", &needreboot, &error_code);
-            if (!install_ok)
+            error_code = InstallNDISDriver(L"C:\\netsf.inf", &needreboot);
+            if (S_OK != error_code)
             {
                 cout << "install fail" << endl;
-                if (S_OK != error_code)
-                {
-                    _com_error e(error_code);
-                    std::wstring error_msg = e.ErrorMessage();
-                }
+                print_error(error_code);
             }
             else
             {
                 cout << "install success" << endl;
             }
         }
-    }
-    else
-    {
-        cout << "have installed, uninstall it" <<endl;
+        break;
 
-        error_code = 0;
-        int uninstall_ok = UninstallNDISDriver(L"ms_passthru", &needreboot, &error_code);
-        if (!uninstall_ok)
-        {
-            cout << "uninstall fail" << endl;
-            if (S_OK != error_code)
-            {
-                _com_error e(error_code);
-                std::wstring error_msg = e.ErrorMessage();
-            }
-        }
-        else
-        {
-            cout << "uninstall success" << endl;
-        }
+    case NDIS_QUERY_ERROR:
+        cout << "query installed fail" << endl;
+        print_error(error_code);
+        break;
+
+    default:
+        break;
     }
 
     return 0;
