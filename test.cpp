@@ -27,7 +27,7 @@ int main()
 
     HRESULT error_code = S_OK;
     int needreboot = 0;
-    NDIS_INST_STATE state = IsNDISDriverInstalled(L"ms_passthru", &error_code);
+    NDIS_INST_STATE state = IsNDISDriverInstalled(DEV_NETSERVICE , L"ms_passthru", &error_code);
     switch (state)
     {
     case NDIS_INSTALLED:
@@ -51,7 +51,7 @@ int main()
         {
             cout << "not installed, install it" <<endl;
 
-            error_code = InstallNDISDriver(L"C:\\netsf.inf", &needreboot);
+            error_code = InstallNDISDriver(DEV_NETSERVICE, L"C:\\netsf.inf", &needreboot);
             if (S_OK != error_code)
             {
                 cout << "install fail" << endl;

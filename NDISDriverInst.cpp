@@ -82,7 +82,7 @@ void FreeComponentInfo(NDISDriverInfo& info)
     }
 }
 
-HRESULT EnumNDISDrivers(InfoNode *pInfoListHeader)
+HRESULT EnumNDISDrivers(const GUID * pGUIDClass, InfoNode *pInfoListHeader)
 {
     if (NULL == pInfoListHeader)
     {
@@ -97,7 +97,7 @@ HRESULT EnumNDISDrivers(InfoNode *pInfoListHeader)
     {
         // Get Component Enumerator Interface
         IEnumNetCfgComponent *pencc = NULL;
-        hr = HrGetComponentEnum(pnc, &GUID_DEVCLASS_NETSERVICE, &pencc);
+        hr = HrGetComponentEnum(pnc, pGUIDClass, &pencc);
         if (S_OK == hr)
         {
             INetCfgComponent *pncc = NULL;
@@ -154,14 +154,36 @@ void FreeEnumInfos(InfoNode *pInfoListHeader)
     memset(pInfoListHeader, 0, sizeof(InfoNode));
 }
 
+const GUID * DevClass2GUID(const NDIS_DEV_CLASS DevCls)
+{
+    switch (DevCls)
+    {
+    case DEV_NETCLIENT:
+        return &GUID_DEVCLASS_NETCLIENT;
+        break;
+
+    case DEV_NETSERVICE:
+        return &GUID_DEVCLASS_NETSERVICE;
+        break;
+
+    case DEV_NETTRANS:
+        return &GUID_DEVCLASS_NETTRANS;
+        break;
+
+    default:
+        return NULL;
+        break;
+    }
+}
 
 
-NDIS_DRIVER_INST_API NDIS_INST_STATE __stdcall IsNDISDriverInstalled(const wchar_t *szComponentId, HRESULT *pResult)
+
+NDIS_DRIVER_INST_API NDIS_INST_STATE __stdcall IsNDISDriverInstalled(const NDIS_DEV_CLASS DevCls, const wchar_t *szComponentId, HRESULT *pResult)
 {
     NDIS_INST_STATE inst_state = NDIS_NOT_INSTALLED;
 
     InfoNode InfoHeader = {0};
-    HRESULT hr = EnumNDISDrivers(&InfoHeader);
+    HRESULT hr = EnumNDISDrivers(DevClass2GUID(DevCls), &InfoHeader);
     if (S_OK == hr)
     {
         InfoNode *pCurInfo = InfoHeader.pNext;
@@ -188,13 +210,13 @@ NDIS_DRIVER_INST_API NDIS_INST_STATE __stdcall IsNDISDriverInstalled(const wchar
     return inst_state;
 }
 
-NDIS_DRIVER_INST_API HRESULT __stdcall InstallNDISDriver(const wchar_t *szInfFile, int *pNeedReboot)
+NDIS_DRIVER_INST_API HRESULT __stdcall InstallNDISDriver(const NDIS_DEV_CLASS DevCls, const wchar_t *szInfFile, int *pNeedReboot)
 {
     WCHAR *szPnpID = NULL;
     HRESULT hr = GetPnpID(szInfFile, &szPnpID);
     if (S_OK == hr)
     {
-        hr = InstallSpecifiedComponent(szInfFile, szPnpID, &GUID_DEVCLASS_NETSERVICE);
+        hr = InstallSpecifiedComponent(szInfFile, szPnpID, DevClass2GUID(DevCls));
         CoTaskMemFree(szPnpID);
         switch (hr)
         {

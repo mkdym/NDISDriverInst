@@ -61,19 +61,29 @@ extern "C"
         NDIS_QUERY_ERROR,
     };
 
+    //驱动类型
+    enum NDIS_DEV_CLASS
+    {
+        DEV_NETCLIENT,          //客户端
+        DEV_NETSERVICE,         //服务
+        DEV_NETTRANS,           //协议
+    };
+
     /************************************************************************
     brief:          判断指定驱动是否已安装
+    param:          DevCls                              驱动类型
     param:          szComponentId                       组件ID，INF文件中指定的名称。比如WDK自带的passthru的netsf.inf中指定的是ms_passthru
     param:          pResult                             错误码。错误码的使用见示例
     return:         NDIS_DRIVER_INST_API NDIS_INST_STATE __stdcall
     history:        2015/07/13
     remarks:
     ************************************************************************/
-    NDIS_DRIVER_INST_API NDIS_INST_STATE __stdcall IsNDISDriverInstalled(const wchar_t *szComponentId, HRESULT *pResult);
+    NDIS_DRIVER_INST_API NDIS_INST_STATE __stdcall IsNDISDriverInstalled(const NDIS_DEV_CLASS DevCls, const wchar_t *szComponentId, HRESULT *pResult);
 
 
     /************************************************************************
     brief:          安装/卸载指定驱动
+    param:          DevCls                              参见IsNDISDriverInstalled
     param:          szInfFile                           用于安装驱动的INF文件路径，比如WDK自带的passthru的netsf.inf
     param:          szComponentId                       参见IsNDISDriverInstalled
     param:          pNeedReboot                         函数成功返回后，若此值为非0，则表示需要重启，否则不需重启
@@ -81,7 +91,7 @@ extern "C"
     history:        2015/07/13
     remarks:
     ************************************************************************/
-    NDIS_DRIVER_INST_API HRESULT __stdcall InstallNDISDriver(const wchar_t *szInfFile, int *pNeedReboot);
+    NDIS_DRIVER_INST_API HRESULT __stdcall InstallNDISDriver(const NDIS_DEV_CLASS DevCls, const wchar_t *szInfFile, int *pNeedReboot);
     NDIS_DRIVER_INST_API HRESULT __stdcall UninstallNDISDriver(const wchar_t *szComponentId, int *pNeedReboot);
 
 
