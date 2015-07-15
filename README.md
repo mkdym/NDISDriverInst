@@ -5,7 +5,7 @@ A library to install/uninstall NDIS driver on Windows.
 ### Features
 
 * This library is based on WDK sample bindview which is a dialogue based executable program.  
-* Currently, it only supports NetService driver. Certainly, you can modify it to support Client and Protocol driver.  
+* You can use it to install/uninstall driver and query its install-state.  
 
 
 ### Build
@@ -17,9 +17,9 @@ They all have debug and release version. Debug version has a _d flag in the libr
 I have changed TARGETPATH to "Lib", so you'll get your library in "Lib" folder.  
 
 
-### Using
+### Usage
 
-You just need include NDISDriverInst.h.  
+You just need include NDISDriverInst.h and copy the library binary file to the correct folder.  
 Default, you will use the static library.  
 If you want to use dynamic library(dll), you should define macro NDIS_INST_IMPORT_DYN before include the header.  
 
@@ -28,9 +28,10 @@ If you want to use dynamic library(dll), you should define macro NDIS_INST_IMPOR
 
 see test.cpp
 
-### PS
+### Remarks
 
 I only test it with WDK sample "passthru" driver.  
 Please tell me when error or suggestion, thanks.  
+e-mail: abju123@sina.com
 
 
